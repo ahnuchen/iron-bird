@@ -44,7 +44,7 @@ class Main extends eui.UILayer {
     private bgImgs: egret.Bitmap[] = [];
     private timeOnEnterFrame = 0;
     private deltaTime = 0;
-    private sceneSpeed = 0.3; // 场景速度
+    private sceneSpeed = 0.32; // 场景速度
     private pillars: Pillar[] = [];
     private totalScore = 100
     private earnScore = 0
@@ -390,7 +390,7 @@ class Main extends eui.UILayer {
                 if (pillar.direction === 1) {
                     pillarHitY = pillar.y + pillar.height / 2
                 } else {
-                    pillarHitY = pillar.y - pillar.height / 2
+                    pillarHitY = pillar.y - pillar.height / 2 - 5
                 }
                 let hit = this.bird.hitTestPoint(pillar.x, pillarHitY)
                 if (hit && !pillar.hitted) {
