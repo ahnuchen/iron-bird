@@ -210,7 +210,6 @@ class Main extends eui.UILayer {
             }
             this.startGame()
         }, this)
-
     }
 
 
@@ -242,6 +241,21 @@ class Main extends eui.UILayer {
         tip3.x = 10
         tip3.y = 115
         panel.addEventListener(eui.UIEvent.CLOSING, this.startGame, this)
+
+
+
+        const githubPng = createBitmapByName('github_png')
+        githubPng.x = 330
+        githubPng.y = 100
+        githubPng.width = 100
+        githubPng.height = 100
+        githubPng.touchEnabled = true
+        githubPng.addEventListener(egret.TouchEvent.TOUCH_TAP,(e)=>{
+            e.stopPropagation()
+            window.open('https://github.com/ahnuchen/iron-bird', '_blank')
+        }, this)
+        panel.addChild(githubPng)
+
         this.addChild(panel);
     }
 
@@ -275,6 +289,9 @@ class Main extends eui.UILayer {
 
 
         this.drawStartTip()
+        // this.drawEndGame()
+        // this.resetGame()
+
         // 添加小鸟
         this.bird = new Bird;
         this.addChildAt(this.bird, 5);
