@@ -27,20 +27,30 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-class LoadingUI extends egret.Sprite implements RES.PromiseTaskReporter {
+import Bitmap = egret.Bitmap;
+import {createBitmapByName} from "./utls";
+
+export class LoadingUI extends egret.Sprite implements RES.PromiseTaskReporter {
 
     private stageWidth: number;
     private stageHeight: number;
-    public constructor({stageWidth, stageHeight}: {stageWidth: number, stageHeight: number}) {
+    private loadingPng: Bitmap
+    private textField: egret.TextField;
+
+    public constructor({stageWidth, stageHeight,loadingPng}: {stageWidth: number, stageHeight: number,loadingPng?:Bitmap}) {
         super();
         this.stageWidth = stageWidth
         this.stageHeight = stageHeight
+        this.loadingPng = loadingPng
         this.createView();
     }
 
-    private textField: egret.TextField;
 
-    private createView(): void {
+
+    private async createView() {
+        this.addChild(this.loadingPng)
+        this.loadingPng.x = (this.stageWidth - this.loadingPng.width) / 2
+        this.loadingPng.y = (this.stageHeight - this.loadingPng.height) / 2 - 80
         //绘制白色背景
         let shp: egret.Shape = new egret.Shape();
         shp.graphics.beginFill(0xffffff, 1);
@@ -50,11 +60,12 @@ class LoadingUI extends egret.Sprite implements RES.PromiseTaskReporter {
 
         // 绘制进度
         this.textField = new egret.TextField();
-        this.textField.textColor = 0x333333;
+        this.textField.textColor = 0x1aad19;
         this.addChildAt(this.textField, 1);
-        this.textField.y = 300;
         this.textField.width = 480;
         this.textField.height = 100;
+        this.textField.x = (this.stageWidth - this.textField.width) / 2
+        this.textField.y = 320;
         this.textField.textAlign = "center";
     }
 
@@ -70,6 +81,6 @@ class LoadingUI extends egret.Sprite implements RES.PromiseTaskReporter {
     }
 
     public onProgress(current: number, total: number): void {
-        this.textField.text = `Loading...${current}/${total}`;
+        this.textField.text = `小鸟正在飞过来...${current}/${total}`;
     }
 }

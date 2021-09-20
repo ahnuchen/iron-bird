@@ -29,29 +29,42 @@
 
 import Sound = egret.Sound;
 import {Bird} from "./Bird";
+import {LoadingUI} from "./LoadingUI";
+import {createBitmapByName} from "./utls";
+import {Pillar} from "./Pillar";
+import TextField = egret.TextField;
+import {SoundCtrl} from "./SoundCtrl";
 
 class Main extends eui.UILayer {
 
-    private sound: Sound
+    private sound: Sound;
     private bird: Bird;
     private soundChannel: egret.SoundChannel;
-    private colCenter: number
-    private birdTween: egret.Tween;
+    private colCenter: number;
+    private bgImgs: egret.Bitmap[] = [];
+    private timeOnEnterFrame = 0;
+    private deltaTime = 0;
+    private sceneSpeed = 0.3; // 场景速度
+    private pillars: Pillar[] = [];
+    private totalScore = 100
+    private earnScore = 0
+    private scoreTextField: TextField
+    private soundCtrl: SoundCtrl
 
     protected createChildren(): void {
         super.createChildren();
 
         egret.lifecycle.addLifecycleListener((context) => {
             // custom lifecycle plugin
-        })
+        });
 
         egret.lifecycle.onPause = () => {
             egret.ticker.pause();
-        }
+        };
 
         egret.lifecycle.onResume = () => {
             egret.ticker.resume();
-        }
+        };
 
         //inject the custom material parser
         //注入自定义的素材解析器
@@ -65,25 +78,30 @@ class Main extends eui.UILayer {
     }
 
     private async runGame() {
-        await this.loadResource()
+        await this.loadResource();
         this.createGameScene();
-        this.createTweenObj();
-        this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonClick, this)
+        this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonClick, this);
+        // 添加帧动画监听
+        this.addEventListener(egret.Event.ENTER_FRAME, this.onTick, this)
     }
 
     private async loadResource() {
         try {
+
+            await RES.loadConfig("resource/default.res.json", "resource/");
+            await RES.loadGroup("loading", 0,);
+            const loadingPng = createBitmapByName('loading_png');
             const loadingView = new LoadingUI({
                 stageWidth: this.stage.stageWidth,
-                stageHeight: this.stage.stageHeight
+                stageHeight: this.stage.stageHeight,
+                loadingPng
             });
             this.stage.addChild(loadingView);
-            await RES.loadConfig("resource/default.res.json", "resource/");
             await this.loadTheme();
             await RES.loadGroup("preload", 0, loadingView);
             this.stage.removeChild(loadingView);
+            egret.registerFontMapping("myFont", "resource/assets/bird-assets/font2.ttf");
             this.sound = RES.getRes('hit_ogg')
-            this.bird = new Bird
         } catch (e) {
             console.error(e);
         }
@@ -101,24 +119,74 @@ class Main extends eui.UILayer {
         })
     }
 
+    private onTick() {
+        let now = egret.getTimer();
+        let time = this.timeOnEnterFrame;
+        this.deltaTime = now - time;
+        this.timeOnEnterFrame = egret.getTimer();
+        this.moveBgImgs()
+        this.movePillars()
+        this.testBirtHitPillar()
+    }
+
 
     /**
      * 创建场景界面
      * Create scene interface
      */
     protected createGameScene(): void {
+
         // 添加小鸟
-        this.addChildAt(this.bird, 1)
+        this.bird = new Bird;
+        this.addChildAt(this.bird, 5);
         this.bird.x = 200;
-        this.colCenter = 320 - this.bird.height / 2
-        this.bird.y = this.colCenter
+        this.colCenter = 320 - this.bird.height / 2;
+        this.bird.y = this.colCenter;
+
+        // 绘制蓝天白云背景
+        for (let i = 0; i < 3; i++) {
+            const bgImg = createBitmapByName('bg1_jpg');
+            bgImg.width = this.stage.stageWidth;
+            bgImg.height = this.stage.stageHeight;
+            bgImg.x = bgImg.width * i;
+            bgImg.y = 0;
+            this.addChildAt(bgImg, 0);
+            this.bgImgs.push(bgImg)
+        }
+
+        //  绘制管子
+
+        for (let i = 1; i < this.totalScore; i++) {
+            const direction = Math.random() - 0.5 >= 0 ? 1 : 0
+            const pillar = new Pillar(direction)
+            pillar.x = pillar.width * (2 * i + Math.random())
+            pillar.y = direction === 1 ? -10 : this.stage.stageHeight
+            this.addChild(pillar)
+            this.pillars.push(pillar)
+        }
+
+        // 绘制分数
+        let textfield = new egret.TextField();
+        textfield.fontFamily = "myFont"; //上一步映射的字体
+        this.addChildAt(textfield, 1000);
+        textfield.text = `0/${this.totalScore}`
+        textfield.width = 200;
+        textfield.textAlign = egret.HorizontalAlign.LEFT;
+        textfield.size = 27;
+        textfield.textColor = 0xfed600
+        textfield.x = 10;
+        textfield.y = 10;
+        this.scoreTextField = textfield
+
+        //    绘制声音开关
+        this.soundCtrl = new SoundCtrl()
+        this.addChildAt(this.soundCtrl, 1000)
+        this.soundCtrl.x = this.stage.stageWidth - (this.soundCtrl.width + 10)
+        this.soundCtrl.y = 10
+        this.soundCtrl.width = 80
+        this.soundCtrl.height = 80
     }
 
-    protected createTweenObj(): void {
-        this.birdTween = egret.Tween.get(this.bird, {
-            loop: false,//设置循环播放
-        })
-    }
 
     /**
      * 点击按钮
@@ -126,26 +194,70 @@ class Main extends eui.UILayer {
      */
 
     private onButtonClick(e: egret.TouchEvent) {
-        if (this.soundChannel) {
-            this.soundChannel.stop();
-            this.soundChannel = null;
+        if (this.soundCtrl.voice) {
+            if (this.soundChannel) {
+                this.soundChannel.stop();
+                this.soundChannel = null;
+            }
+            this.soundChannel = this.sound.play(0, 1);
         }
-        this.soundChannel = this.sound.play(0, 1);
-        egret.Tween.removeTweens(this.bird)
+        egret.Tween.removeTweens(this.bird);
         let tw = egret.Tween.get(this.bird, {
             loop: false,//设置循环播放
-        })
+        });
+        // 点击屏幕左边。小鸟向下俯冲
         if (e.stageX < this.stage.stageWidth / 2) {
-
-            tw.to({y: this.colCenter - 100, rotation: -15, x: 190}, 80)
-                .to({y: this.colCenter, rotation: 0, x: 200}, 50)
+            tw.to({y: this.colCenter - 100, rotation: -15, x: 190}, 70)
+                .to({y: this.colCenter, rotation: 0, x: 200}, 30)
         } else {
-            tw.to({y: this.colCenter + 100, rotation: 15, x: 210}, 80)
-                .to({y: this.colCenter, rotation: 0, x: 200}, 50)
+            // 点击屏幕右边。小鸟抬头
+            tw.to({y: this.colCenter + 103, rotation: 20, x: 210}, 70)
+                .to({y: this.colCenter, rotation: 0, x: 200}, 30)
         }
+    }
 
-        // if(e.target.touches.length > 0){
-        console.log(e.target.touches);
-        // }
+    private moveBgImgs() {
+        for (let i = 0; i < this.bgImgs.length; i++) {
+            const bgImg = this.bgImgs[i];
+            bgImg.x = bgImg.x - this.deltaTime * this.sceneSpeed;
+            // 当移动超过一屏，循环移动画布位置
+            if (bgImg.x < (i - 1) * bgImg.width) {
+                bgImg.x = bgImg.x + bgImg.width
+            }
+        }
+    }
+
+    private movePillars() {
+        for (let i = 0; i < this.pillars.length; i++) {
+            const pillar = this.pillars[i];
+            if (pillar) {
+                pillar.x = pillar.x - this.deltaTime * this.sceneSpeed
+            }
+        }
+    }
+
+    private testBirtHitPillar() {
+        for (let i = 0; i < this.pillars.length; i++) {
+            const pillar = this.pillars[i];
+            if (pillar) {
+                let pillarHitY
+                if (pillar.direction === 1) {
+                    pillarHitY = pillar.y + pillar.height / 2
+                } else {
+                    pillarHitY = pillar.y - pillar.height / 2
+                }
+                let hit = this.bird.hitTestPoint(pillar.x, pillarHitY)
+                if (hit && !pillar.hitted) {
+                    pillar.hitted = true
+                    this.earnScore = this.earnScore + 1
+                    this.scoreTextField.text = `${this.earnScore}/${this.totalScore}`
+                    pillar.slideHide(() => {
+                        this.removeChild(pillar)
+                        this.pillars[i] = null
+                    })
+                }
+            }
+
+        }
     }
 }
