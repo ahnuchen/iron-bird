@@ -1,0 +1,200 @@
+{
+	"groups": [
+		{
+			"keys": "checkbox_select_disabled_png,checkbox_select_down_png,checkbox_select_up_png,checkbox_unselect_png,selected_png,border_png,header_png,radiobutton_select_disabled_png,radiobutton_select_down_png,radiobutton_select_up_png,radiobutton_unselect_png,roundthumb_png,thumb_png,track_png,tracklight_png,handle_png,off_png,on_png,button_down_png,button_up_png,thumb_pb_png,track_pb_png,track_sb_png,egret_icon_png,description_json,hit_ogg,zombies_json,bg1_jpg,bg_score_png,pillar_png,retry_png,font2_ttf,sound_on_png,sound_off_png,github_png",
+			"name": "preload"
+		},
+		{
+			"keys": "loading_png",
+			"name": "loading"
+		}
+	],
+	"resources": [
+		{
+			"url": "assets/CheckBox/checkbox_select_disabled.png",
+			"type": "image",
+			"name": "checkbox_select_disabled_png"
+		},
+		{
+			"url": "assets/CheckBox/checkbox_select_down.png",
+			"type": "image",
+			"name": "checkbox_select_down_png"
+		},
+		{
+			"url": "assets/CheckBox/checkbox_select_up.png",
+			"type": "image",
+			"name": "checkbox_select_up_png"
+		},
+		{
+			"url": "assets/CheckBox/checkbox_unselect.png",
+			"type": "image",
+			"name": "checkbox_unselect_png"
+		},
+		{
+			"url": "assets/ItemRenderer/selected.png",
+			"type": "image",
+			"name": "selected_png"
+		},
+		{
+			"url": "assets/Panel/border.png",
+			"type": "image",
+			"name": "border_png"
+		},
+		{
+			"url": "assets/Panel/header.png",
+			"type": "image",
+			"name": "header_png"
+		},
+		{
+			"url": "assets/RadioButton/radiobutton_select_disabled.png",
+			"type": "image",
+			"name": "radiobutton_select_disabled_png"
+		},
+		{
+			"url": "assets/RadioButton/radiobutton_select_down.png",
+			"type": "image",
+			"name": "radiobutton_select_down_png"
+		},
+		{
+			"url": "assets/RadioButton/radiobutton_select_up.png",
+			"type": "image",
+			"name": "radiobutton_select_up_png"
+		},
+		{
+			"url": "assets/RadioButton/radiobutton_unselect.png",
+			"type": "image",
+			"name": "radiobutton_unselect_png"
+		},
+		{
+			"url": "assets/ScrollBar/roundthumb.png",
+			"type": "image",
+			"name": "roundthumb_png"
+		},
+		{
+			"url": "assets/Slider/thumb.png",
+			"type": "image",
+			"name": "thumb_png"
+		},
+		{
+			"url": "assets/Slider/track.png",
+			"type": "image",
+			"name": "track_png"
+		},
+		{
+			"url": "assets/Slider/tracklight.png",
+			"type": "image",
+			"name": "tracklight_png"
+		},
+		{
+			"url": "assets/ToggleSwitch/handle.png",
+			"type": "image",
+			"name": "handle_png"
+		},
+		{
+			"url": "assets/ToggleSwitch/off.png",
+			"type": "image",
+			"name": "off_png"
+		},
+		{
+			"url": "assets/ToggleSwitch/on.png",
+			"type": "image",
+			"name": "on_png"
+		},
+		{
+			"url": "assets/Button/button_down.png",
+			"type": "image",
+			"name": "button_down_png"
+		},
+		{
+			"url": "assets/Button/button_up.png",
+			"type": "image",
+			"name": "button_up_png"
+		},
+		{
+			"url": "assets/ProgressBar/thumb_pb.png",
+			"type": "image",
+			"name": "thumb_pb_png"
+		},
+		{
+			"url": "assets/ProgressBar/track_pb.png",
+			"type": "image",
+			"name": "track_pb_png"
+		},
+		{
+			"url": "assets/ScrollBar/track_sb.png",
+			"type": "image",
+			"name": "track_sb_png"
+		},
+		{
+			"url": "assets/egret_icon.png",
+			"type": "image",
+			"name": "egret_icon_png"
+		},
+		{
+			"url": "config/description.json",
+			"type": "json",
+			"name": "description_json"
+		},
+		{
+			"url": "assets/bird-assets/hit.ogg",
+			"type": "sound",
+			"name": "hit_ogg"
+		},
+		{
+			"url": "assets/bird-assets/zombies.json",
+			"type": "sheet",
+			"name": "zombies_json",
+			"subkeys": "bird0,bird1,bird2"
+		},
+		{
+			"url": "assets/bird-assets/bg1.jpg",
+			"type": "image",
+			"name": "bg1_jpg"
+		},
+		{
+			"url": "assets/bird-assets/bg_score.png",
+			"type": "image",
+			"name": "bg_score_png"
+		},
+		{
+			"url": "assets/bird-assets/loading.png",
+			"type": "image",
+			"name": "loading_png"
+		},
+		{
+			"url": "assets/bird-assets/pillar.png",
+			"type": "image",
+			"name": "pillar_png"
+		},
+		{
+			"url": "assets/bird-assets/retry.png",
+			"type": "image",
+			"name": "retry_png"
+		},
+		{
+			"url": "assets/bird-assets/font1.png",
+			"type": "image",
+			"name": "font1_png"
+		},
+		{
+			"url": "assets/bird-assets/font2.ttf",
+			"type": "ttf",
+			"name": "font2_ttf"
+		},
+		{
+			"url": "assets/bird-assets/sound_on.png",
+			"type": "image",
+			"name": "sound_on_png"
+		},
+		{
+			"url": "assets/bird-assets/sound_off.png",
+			"type": "image",
+			"name": "sound_off_png"
+		},
+		{
+			"url": "assets/bird-assets/github.png",
+			"type": "image",
+			"name": "github_png"
+		}
+	]
+}

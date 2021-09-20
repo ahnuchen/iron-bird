@@ -1,0 +1,35 @@
+{
+    "file": "zombies.png",
+    "frames": {
+        "bird0": {
+            "x": 2,
+            "y": 2,
+            "w": 71,
+            "h": 56,
+            "offX": 0,
+            "offY": 0,
+            "sourceW": 71,
+            "sourceH": 56
+        },
+        "bird1": {
+            "x": 75,
+            "y": 2,
+            "w": 71,
+            "h": 56,
+            "offX": 1,
+            "offY": 0,
+            "sourceW": 71,
+            "sourceH": 56
+        },
+        "bird2": {
+            "x": 148,
+            "y": 2,
+            "w": 71,
+            "h": 56,
+            "offX": 1,
+            "offY": 0,
+            "sourceW": 71,
+            "sourceH": 56
+        }
+    }
+}
