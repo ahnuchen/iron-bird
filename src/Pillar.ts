@@ -32,11 +32,11 @@ export class Pillar extends egret.DisplayObjectContainer {
         if (this.direction === 1) {
             tw.to({
                 y: -this.pillar.height
-            }, 200).call(callback, this)
+            }, 120).call(callback, this)
         } else {
             tw.to({
                 y: stageHeight
-            }, 200).call(callback, this)
+            }, 120).call(callback, this)
         }
     }
 }

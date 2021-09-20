@@ -50,6 +50,12 @@ class Main extends eui.UILayer {
     private earnScore = 0
     private scoreTextField: TextField
     private soundCtrl: SoundCtrl
+    private gameStart: Boolean = false;
+    private scoreBg: egret.Bitmap;
+    private restartBtn: egret.Bitmap;
+    private deltaResetTime = 0;
+    private currentScore: egret.TextField;
+    private bestScore: egret.TextField;
 
     protected createChildren(): void {
         super.createChildren();
@@ -80,7 +86,6 @@ class Main extends eui.UILayer {
     private async runGame() {
         await this.loadResource();
         this.createGameScene();
-        this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonClick, this);
         // 添加帧动画监听
         this.addEventListener(egret.Event.ENTER_FRAME, this.onTick, this)
     }
@@ -124,9 +129,141 @@ class Main extends eui.UILayer {
         let time = this.timeOnEnterFrame;
         this.deltaTime = now - time;
         this.timeOnEnterFrame = egret.getTimer();
+        if (!this.gameStart) {
+            return
+        }
         this.moveBgImgs()
         this.movePillars()
         this.testBirtHitPillar()
+    }
+
+    private startGame() {
+
+        this.earnScore = 0;
+        this.scoreTextField.text = `0/${this.totalScore}`
+        this.drawPillars()
+        this.gameStart = true
+        setTimeout(() => {
+            // 点击事件监听
+            this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonClick, this);
+        }, 300)
+    }
+
+
+    private resetGame() {
+        this.removeEventListener(egret.TouchEvent.TOUCH_TAP, () => {
+            console.log(111);
+        }, this);
+        this.gameStart = false
+        this.addChild(this.restartBtn)
+        this.addChild(this.scoreBg)
+        this.currentScore.text = this.earnScore.toString()
+        this.addChild(this.currentScore)
+
+        let bestScore = parseInt(egret.localStorage.getItem('bestScore') || '0')
+        if (this.earnScore > bestScore) {
+            egret.localStorage.setItem('bestScore', this.earnScore.toString())
+        }
+        this.bestScore.text = egret.localStorage.getItem('bestScore')
+        this.addChild(this.bestScore)
+    }
+
+    private drawEndGame() {
+
+        this.scoreBg = createBitmapByName('bg_score_png')
+        this.scoreBg.x = (this.stage.stageWidth - this.scoreBg.width) / 2
+        this.scoreBg.y = 80
+
+        const currentScore = new egret.TextField()
+        currentScore.text = this.earnScore.toString()
+        currentScore.x = this.stage.stageWidth / 2 - 25
+        currentScore.y = 239
+        currentScore.size = 50
+        currentScore.fontFamily = "myFont"; //上一步映射的字体
+        currentScore.textColor = 0xfed600
+        this.currentScore = currentScore
+
+
+        const bestScore = new egret.TextField()
+        bestScore.text = this.earnScore.toString()
+        bestScore.x = this.stage.stageWidth / 2 - 29
+        bestScore.y = 340
+        bestScore.size = 50
+        bestScore.fontFamily = "myFont"; //上一步映射的字体
+        bestScore.textColor = 0xfed600
+        this.bestScore = bestScore
+
+
+        this.restartBtn = createBitmapByName('retry_png')
+        this.restartBtn.x = (this.stage.stageWidth - this.restartBtn.width) / 2
+        this.restartBtn.y = 450
+        this.restartBtn.touchEnabled = true
+        this.restartBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, (e) => {
+            e.stopPropagation()
+            try {
+                this.removeChild(this.restartBtn)
+                this.removeChild(this.scoreBg)
+                this.removeChild(this.currentScore)
+                this.removeChild(this.bestScore)
+            } catch (e) {
+
+            }
+            this.startGame()
+        }, this)
+
+    }
+
+
+    // 开始游戏提示
+    private drawStartTip() {
+        let panel = new eui.Panel();
+        panel.title = "提示";
+        panel.horizontalCenter = 0;
+        panel.verticalCenter = 0;
+        const tip = new TextField()
+        tip.text = `1.点击屏幕左边，小鸟跳跃`
+        tip.size = 22
+        panel.addChild(tip)
+        tip.textColor = 0x333333;
+        tip.x = 10
+        tip.y = 55
+        const tip2 = new TextField()
+        tip2.text = `2.点击屏幕右边，小鸟俯冲`
+        tip2.size = 22
+        panel.addChild(tip2)
+        tip2.textColor = 0x333333;
+        tip2.x = 10
+        tip2.y = 85
+        const tip3 = new TextField()
+        tip3.text = `3.撞掉所有柱子！！！`
+        tip3.size = 22
+        panel.addChild(tip3)
+        tip3.textColor = 0x333333;
+        tip3.x = 10
+        tip3.y = 115
+        panel.addEventListener(eui.UIEvent.CLOSING, this.startGame, this)
+        this.addChild(panel);
+    }
+
+
+    // 绘制柱子
+    private drawPillars() {
+        for (let i = 0; i < this.pillars.length; i++) {
+            const pillar = this.pillars[i];
+            if (pillar) {
+                this.removeChild(pillar)
+            }
+        }
+        this.pillars = []
+        //  绘制管子
+        for (let i = 1; i < this.totalScore; i++) {
+            const direction = Math.random() - 0.5 >= 0 ? 1 : 0
+            const pillar = new Pillar(direction)
+            pillar.x = this.stage.stageWidth + pillar.width * (2 * i + Math.random())
+            pillar.y = direction === 1 ? -10 : this.stage.stageHeight
+            this.addChild(pillar)
+            this.pillars.push(pillar)
+        }
     }
 
 
@@ -136,6 +273,8 @@ class Main extends eui.UILayer {
      */
     protected createGameScene(): void {
 
+
+        this.drawStartTip()
         // 添加小鸟
         this.bird = new Bird;
         this.addChildAt(this.bird, 5);
@@ -154,21 +293,10 @@ class Main extends eui.UILayer {
             this.bgImgs.push(bgImg)
         }
 
-        //  绘制管子
-
-        for (let i = 1; i < this.totalScore; i++) {
-            const direction = Math.random() - 0.5 >= 0 ? 1 : 0
-            const pillar = new Pillar(direction)
-            pillar.x = pillar.width * (2 * i + Math.random())
-            pillar.y = direction === 1 ? -10 : this.stage.stageHeight
-            this.addChild(pillar)
-            this.pillars.push(pillar)
-        }
-
         // 绘制分数
         let textfield = new egret.TextField();
         textfield.fontFamily = "myFont"; //上一步映射的字体
-        this.addChildAt(textfield, 1000);
+        this.addChildAt(textfield, 9999);
         textfield.text = `0/${this.totalScore}`
         textfield.width = 200;
         textfield.textAlign = egret.HorizontalAlign.LEFT;
@@ -180,16 +308,18 @@ class Main extends eui.UILayer {
 
         //    绘制声音开关
         this.soundCtrl = new SoundCtrl()
-        this.addChildAt(this.soundCtrl, 1000)
+        this.addChildAt(this.soundCtrl, 9999)
         this.soundCtrl.x = this.stage.stageWidth - (this.soundCtrl.width + 10)
         this.soundCtrl.y = 10
         this.soundCtrl.width = 80
         this.soundCtrl.height = 80
+
+        this.drawEndGame()
     }
 
 
     /**
-     * 点击按钮
+     * 点击屏幕
      * Click the button
      */
 
@@ -216,6 +346,7 @@ class Main extends eui.UILayer {
         }
     }
 
+    // 移动背景
     private moveBgImgs() {
         for (let i = 0; i < this.bgImgs.length; i++) {
             const bgImg = this.bgImgs[i];
@@ -227,6 +358,7 @@ class Main extends eui.UILayer {
         }
     }
 
+    // 移动柱子
     private movePillars() {
         for (let i = 0; i < this.pillars.length; i++) {
             const pillar = this.pillars[i];
@@ -234,8 +366,22 @@ class Main extends eui.UILayer {
                 pillar.x = pillar.x - this.deltaTime * this.sceneSpeed
             }
         }
+
+        //     检测最后一刻柱子超出屏幕外，弹出游戏结束
+        const lastPillar = this.pillars[this.pillars.length - 1]
+        if (!lastPillar || lastPillar.x < (lastPillar.width * -1)) {
+            this.deltaResetTime += this.deltaTime
+            if (this.deltaResetTime > 1500) {
+                this.deltaResetTime = 0
+                this.resetGame()
+            }
+        }
     }
 
+    /**
+     * 检测碰撞
+     * @private
+     */
     private testBirtHitPillar() {
         for (let i = 0; i < this.pillars.length; i++) {
             const pillar = this.pillars[i];
